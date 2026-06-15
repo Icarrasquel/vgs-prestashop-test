@@ -27,17 +27,7 @@
 
     {block name='product_price'}
       <div class="product-price">
-        {if $product.has_discount}
-          {if $product.discount_type === 'percentage'}
-            <span class="badge badge-danger">{l s='Save %percentage%' d='Shop.Theme.Catalog' sprintf=['%percentage%' => $product.discount_percentage_absolute]}</span>
-          {else}
-            <span class="badge badge-danger">
-              {l s='Save %amount%' d='Shop.Theme.Catalog' sprintf=['%amount%' => $product.discount_to_display]}
-            </span>
-          {/if}
-        {/if}
-
-        <div>
+        <div class="vgs-product-detail__price-row">
           <span class="price price--lg">
             {capture name='custom_price'}{hook h='displayProductPriceBlock' product=$product type='custom_price' hook_origin='product_sheet'}{/capture}
             {if '' !== $smarty.capture.custom_price}
@@ -46,11 +36,21 @@
               {$product.price}
             {/if}
           </span>
+
           {block name='product_discount'}
             {if $product.has_discount}
-              <span class="ml-2 price price--regular">{$product.regular_price}</span>
+              <span class="price price--regular">{$product.regular_price}</span>
+
+              <span class="vgs-product-detail__discount-badge">
+                {if $product.discount_type === 'percentage'}
+                  {$product.discount_percentage}
+                {else}
+                  {$product.discount_to_display}
+                {/if}
+              </span>
             {/if}
           {/block}
+
           {hook h='displayProductPriceBlock' product=$product type="old_price"}
         </div>
 
@@ -64,19 +64,23 @@
 
     {block name='product_without_taxes'}
       {if $priceDisplay == 2}
-        <p class="product-without-taxes">{l s='%price% tax excl.' d='Shop.Theme.Catalog' sprintf=['%price%' => $product.price_tax_exc]}</p>
+        <p class="product-without-taxes">
+          {l s='%price% tax excl.' d='Shop.Theme.Catalog' sprintf=['%price%' => $product.price_tax_exc]}</p>
       {/if}
     {/block}
 
     {block name='product_pack_price'}
       {if $displayPackPrice}
-        <p class="product-pack-price"><span>{l s='Instead of %price%' d='Shop.Theme.Catalog' sprintf=['%price%' => $noPackPrice]}</span></p>
+        <p class="product-pack-price">
+          <span>{l s='Instead of %price%' d='Shop.Theme.Catalog' sprintf=['%price%' => $noPackPrice]}</span>
+        </p>
       {/if}
     {/block}
 
     {block name='product_ecotax'}
       {if !$product.is_virtual && $product.ecotax.amount > 0}
-        <p class="price-ecotax">{l s='Including %amount% for ecotax' d='Shop.Theme.Catalog' sprintf=['%amount%' => $product.ecotax_tax_inc]}
+        <p class="price-ecotax">
+          {l s='Including %amount% for ecotax' d='Shop.Theme.Catalog' sprintf=['%amount%' => $product.ecotax_tax_inc]}
           {if $product.has_discount}
             {l s='(not impacted by the discount)' d='Shop.Theme.Catalog'}
           {/if}
@@ -87,11 +91,13 @@
     {hook h='displayProductPriceBlock' product=$product type="weight" hook_origin='product_sheet'}
 
     <div class="tax-shipping-delivery-label">
+      {*
       {if !$configuration.taxes_enabled}
         {l s='No tax' d='Shop.Theme.Catalog'}
       {elseif $configuration.display_taxes_label}
         {$product.labels.tax_long}
       {/if}
+      *}
       {hook h='displayProductPriceBlock' product=$product type="price"}
       {hook h='displayProductPriceBlock' product=$product type="after_price"}
 
@@ -103,7 +109,7 @@
         {elseif $product.additional_delivery_times == 2}
           {if $product.quantity >= $product.quantity_wanted}
             <span class="delivery-information">{$product.delivery_in_stock}</span>
-          {* Out of stock message should not be displayed if customer can't order the product. *}
+            {* Out of stock message should not be displayed if customer can't order the product. *}
           {elseif $product.add_to_cart_url}
             <span class="delivery-information">{$product.delivery_out_stock}</span>
           {/if}

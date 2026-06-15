@@ -26,40 +26,25 @@
   {if !$configuration.is_catalog}
 
     {block name='product_quantity'}
-      <div class="product-quantity row mb-1 mx-n1 mt-n2 align-items-center">
-        <div class="qty col-12 col-sm-auto mx-auto mt-2 px-1">
-          <input
-            type="number"
-            name="qty"
-            id="quantity_wanted"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            {if $product.quantity_wanted}
-              value="{$product.quantity_wanted}"
-              min="{$product.minimal_quantity}"
+      <div class="vgs-product-detail__buy-row product-quantity">
+        <span class="vgs-product-detail__qty-label">Cantidad</span>
+
+        <div class="qty">
+          <input type="number" name="qty" id="quantity_wanted" inputmode="numeric" pattern="[0-9]*"
+            {if $product.quantity_wanted} value="{$product.quantity_wanted}" min="{$product.minimal_quantity}" 
             {else}
-              value="1"
-              min="1"
-            {/if}
-            class="input-group input-touchspin"
-            aria-label="{l s='Quantity' d='Shop.Theme.Actions'}"
-          >
+            value="1" min="1" {/if} class="input-group input-touchspin"
+            aria-label="{l s='Quantity' d='Shop.Theme.Actions'}">
         </div>
 
-        <div class="add col mt-2 px-1">
-          <button
-            class="btn btn-primary add-to-cart btn-block"
-            data-button-action="add-to-cart"
-            type="submit"
-            {if !$product.add_to_cart_url}
-              disabled
-            {/if}
-          >
+        <div class="add">
+          <button class="btn btn-primary add-to-cart btn-block vgs-product-detail__add-button"
+            data-button-action="add-to-cart" type="submit" {if !$product.add_to_cart_url} disabled {/if}>
             {l s='Add to cart' d='Shop.Theme.Actions'}
           </button>
         </div>
 
-        <div class="col-auto mt-2 px-1">
+        <div class="vgs-product-detail__extra-actions">
           <div class="js-product-actions-buttons">
             <div class="row mx-n1 mt-n2 align-items-center">
               {hook h='displayProductActions' product=$product}
@@ -68,28 +53,38 @@
         </div>
       </div>
 
+      <div class="vgs-product-detail__delivery-message">
+        <span class="material-icons">local_shipping</span>
+        <strong>Cómpralo ahora y recíbelo mañana</strong>
+      </div>
+
+      {if $product.grouped_features}
+        <div class="vgs-product-detail__features">
+          {foreach from=$product.grouped_features item=feature}
+            <div class="vgs-product-detail__feature">
+              <span>{$feature.name}</span>
+              <strong>{$feature.value|escape:'htmlall'|nl2br nofilter}</strong>
+            </div>
+          {/foreach}
+        </div>
+      {/if}
     {/block}
 
     {block name='product_availability'}
       <span id="product-availability" class="js-product-availability">
         {if $product.show_availability && $product.availability_message}
-          <span
-            {if $product.availability == 'available'}
-              class="badge badge-success py-1 mb-1"
-            {elseif $product.availability == 'last_remaining_items'}
-              class="badge badge-warning py-1 mb-1"
+          <span {if $product.availability == 'available'} class="badge badge-success py-1 mb-1"
+            {elseif $product.availability == 'last_remaining_items'} class="badge badge-warning py-1 mb-1" 
             {else}
-                class="badge badge-danger py-1 mb-1"
+            class="badge badge-danger py-1 mb-1" {/if}>
+            {if $product.availability == 'available'}
+              <i class="material-icons rtl-no-flip font-reset align-bottom">&#xE5CA;</i>
+            {elseif $product.availability == 'last_remaining_items'}
+              <i class="material-icons font-reset align-bottom">&#xE002;</i>
+            {else}
+              <i class="material-icons font-reset align-bottom">&#xE14B;</i>
             {/if}
-          >
-          {if $product.availability == 'available'}
-            <i class="material-icons rtl-no-flip font-reset align-bottom">&#xE5CA;</i>
-          {elseif $product.availability == 'last_remaining_items'}
-            <i class="material-icons font-reset align-bottom">&#xE002;</i>
-          {else}
-            <i class="material-icons font-reset align-bottom">&#xE14B;</i>
-          {/if}
-          {$product.availability_message}
+            {$product.availability_message}
           </span>
         {/if}
       </span>
@@ -97,16 +92,17 @@
 
     {block name='product_minimal_quantity'}
       <div class="product-minimal-quantity js-product-minimal-quantity">
-      {if $product.minimal_quantity > 1}
-        <small>
-          {l
-            s='The minimum purchase order quantity for the product is %quantity%.'
-            d='Shop.Theme.Checkout'
-            sprintf=['%quantity%' => $product.minimal_quantity]
-          }
-        </small>
-      {/if}
+        {if $product.minimal_quantity > 1}
+          <small>
+            {l
+                    s='The minimum purchase order quantity for the product is %quantity%.'
+                    d='Shop.Theme.Checkout'
+                    sprintf=['%quantity%' => $product.minimal_quantity]
+                  }
+          </small>
+        {/if}
       </div>
     {/block}
+
   {/if}
 </div>

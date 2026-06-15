@@ -32,8 +32,8 @@
     <meta property="product:price:currency" content="{$currency.iso_code}">
   {/if}
   {if isset($product.weight) && ($product.weight != 0)}
-  <meta property="product:weight:value" content="{$product.weight}">
-  <meta property="product:weight:units" content="{$product.weight_unit}">
+    <meta property="product:weight:value" content="{$product.weight}">
+    <meta property="product:weight:units" content="{$product.weight_unit}">
   {/if}
 {/block}
 
@@ -47,89 +47,119 @@
 
   <section id="main">
 
-    <div class="row product-container js-product-container">
-      <div class="col-md-5 mb-4">
+    <div class="vgs-product-detail product-container js-product-container">
+      <div class="vgs-product-detail__gallery">
         {block name='page_content_container'}
-            {block name='page_content'}
-              <div class="position-relative">
-                {include file='catalog/_partials/product-flags.tpl'}
+          {block name='page_content'}
+            <div class="position-relative">
+              {* {include file='catalog/_partials/product-flags.tpl'} *}
 
-                {block name='product_cover_thumbnails'}
-                  {include file='catalog/_partials/product-cover-thumbnails.tpl'}
-                {/block}
-              </div>
-            {/block}
-        {/block}
-        </div>
-        <div class="col-md-7 mb-4">
-          {block name='page_header_container'}
-            {block name='page_header'}
-              <h1 class="h1">{block name='page_title'}{$product.name}{/block}</h1>
-            {/block}
+              {block name='product_cover_thumbnails'}
+                {include file='catalog/_partials/product-cover-thumbnails.tpl'}
+              {/block}
+            </div>
           {/block}
+        {/block}
+      </div>
+      <div class="vgs-product-detail__info">
+        {block name='page_header_container'}
+          {block name='page_header'}
+            <h1 class="vgs-product-detail__title">{block name='page_title'}{$product.name}{/block}</h1>
+          {/block}
+        {/block}
+
+        <div class="product-information vgs-product-detail__content">
+          {block name='product_description_short'}
+            <div id="product-description-short-{$product.id}"
+              class="vgs-product-detail__short-description product-description cms-content">
+              {$product.description_short nofilter}
+            </div>
+          {/block}
+
+          <div class="vgs-product-detail__meta">
+            {if isset($product_manufacturer->id)}
+              <div class="vgs-product-detail__meta-item">
+                <span>Marca:</span>
+                <strong>{$product_manufacturer->name}</strong>
+              </div>
+            {/if}
+
+            {if isset($product.reference_to_display) && $product.reference_to_display neq ''}
+              <div class="vgs-product-detail__meta-item">
+                <span>Referencia:</span>
+                <strong>{$product.reference_to_display}</strong>
+              </div>
+            {/if}
+
+            {if $product.show_availability && $product.availability_message}
+              <div class="vgs-product-detail__meta-item">
+                <span>Disponibilidad:</span>
+                <strong>{$product.availability_message}</strong>
+              </div>
+            {/if}
+          </div>
+
           {block name='product_prices'}
             {include file='catalog/_partials/product-prices.tpl'}
           {/block}
 
-          <div class="product-information ">
-            {block name='product_description_short'}
-              <div id="product-description-short-{$product.id}" class="product-description cms-content">{$product.description_short nofilter}</div>
+          {if $product.is_customizable && count($product.customizations.fields)}
+            {block name='product_customization'}
+              {include file="catalog/_partials/product-customization.tpl" customizations=$product.customizations}
             {/block}
+          {/if}
 
-            {if $product.is_customizable && count($product.customizations.fields)}
-              {block name='product_customization'}
-                {include file="catalog/_partials/product-customization.tpl" customizations=$product.customizations}
-              {/block}
-            {/if}
+          <div class="product-actions js-product-actions">
+            {block name='product_buy'}
+              <form action="{$urls.pages.cart}" method="post" id="add-to-cart-or-refresh">
+                <input type="hidden" name="token" value="{$static_token}">
+                <input type="hidden" name="id_product" value="{$product.id}" id="product_page_product_id">
+                <input type="hidden" name="id_customization" value="{$product.id_customization}"
+                  id="product_customization_id" class="js-product-customization-id">
 
-            <div class="product-actions js-product-actions">
-              {block name='product_buy'}
-                <form action="{$urls.pages.cart}" method="post" id="add-to-cart-or-refresh">
-                  <input type="hidden" name="token" value="{$static_token}">
-                  <input type="hidden" name="id_product" value="{$product.id}" id="product_page_product_id">
-                  <input type="hidden" name="id_customization" value="{$product.id_customization}" id="product_customization_id" class="js-product-customization-id">
+                {block name='product_variants'}
+                  {include file='catalog/_partials/product-variants.tpl'}
+                {/block}
 
-                  {block name='product_variants'}
-                    {include file='catalog/_partials/product-variants.tpl'}
-                  {/block}
-
-                  {block name='product_pack'}
-                    {if $packItems}
-                      <section class="product-pack">
-                        <p class="h4">{l s='This pack contains' d='Shop.Theme.Catalog'}</p>
-                        <div class="card-group-vertical mb-4">
-                          {foreach from=$packItems item="product_pack"}
-                            {block name='product_miniature'}
-                              {include file='catalog/_partials/miniatures/pack-product.tpl' product=$product_pack showPackProductsPrice=$product.show_price}
-                            {/block}
-                          {/foreach}
-                        </div>
+                {block name='product_pack'}
+                  {if $packItems}
+                    <section class="product-pack">
+                      <p class="h4">{l s='This pack contains' d='Shop.Theme.Catalog'}</p>
+                      <div class="card-group-vertical mb-4">
+                        {foreach from=$packItems item="product_pack"}
+                          {block name='product_miniature'}
+                            {include file='catalog/_partials/miniatures/pack-product.tpl' product=$product_pack showPackProductsPrice=$product.show_price}
+                          {/block}
+                        {/foreach}
+                      </div>
                     </section>
-                    {/if}
-                  {/block}
+                  {/if}
+                {/block}
 
-                  {block name='product_discounts'}
-                    {include file='catalog/_partials/product-discounts.tpl'}
-                  {/block}
+                {block name='product_discounts'}
+                  {include file='catalog/_partials/product-discounts.tpl'}
+                {/block}
 
-                  {block name='product_add_to_cart'}
-                    {include file='catalog/_partials/product-add-to-cart.tpl'}
-                  {/block}
+                {block name='product_add_to_cart'}
+                  {include file='catalog/_partials/product-add-to-cart.tpl'}
+                {/block}
 
-                  {block name='product_additional_info'}
-                    {include file='catalog/_partials/product-additional-info.tpl'}
-                  {/block}
+                {*
+                {block name='product_additional_info'}
+                  {include file='catalog/_partials/product-additional-info.tpl'}
+                {/block}
+                *}
 
-                  {* Input to refresh product HTML removed, block kept for compatibility with themes *}
-                  {block name='product_refresh'}{/block}
-                </form>
-              {/block}
-
-            </div>
-
-            {block name='hook_display_reassurance'}
-              {hook h='displayReassurance'}
+                {* Input to refresh product HTML removed, block kept for compatibility with themes *}
+                {block name='product_refresh'}{/block}
+              </form>
             {/block}
+
+          </div>
+
+          {block name='hook_display_reassurance'}
+            {hook h='displayReassurance'}
+          {/block}
 
         </div>
       </div>
